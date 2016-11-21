@@ -1,1 +1,3 @@
 mediadir=/home/armandmaree/Videos/NetMedia/
+username=netmedia
+password=netmedia

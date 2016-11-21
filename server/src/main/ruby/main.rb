@@ -8,6 +8,8 @@ Dir["./src/main/ruby/video/*.rb"].each {|file| require file}
 Dir["./src/main/ruby/network/*.rb"].each {|file| require file}
 
 class Main
+	attr_accessor :mediadir, :config_count, :prompting, :server, :screen
+
 	def initialize
 		@clients = []
 		@config_count = 0
@@ -37,7 +39,11 @@ class Main
 						command = command[0..(command.length - 2)]	
 					end
 
-					@videodir = command
+					if !command.end_with?('/')
+						command = command + '/'
+					end
+
+					@mediadir = command
 					@screen.print("Media directory: #{command}")
 				else
 					@screen.print("Unknown option \"#{key}\"")
@@ -68,6 +74,14 @@ class Main
 				stop
 			when "listmedia"
 				@server.listMedia
+			when "getmedia"
+				print "Name of client: "
+				clientName = "armandmaree-desktop" #gets.chomp
+				print "File name of media: "
+				# filename = "/home/armandmaree/Videos/NetMedia/test" #gets.chomp
+				filename = "/home/armandmaree/Videos/NetMedia/SampleVideo_1280x720_5mb.mp4" #gets.chomp
+				# filename = "/home/armandmaree/Videos/NetMedia/The.Avengers.2012.720p.BluRay.x264.YIFY.mp4" #gets.chomp
+				@server.getMedia(clientName, filename)
 			else
 				screen.print "Unknown command \"#{command}\"."
 			end
@@ -80,8 +94,6 @@ class Main
 		@screen.print("Stop command sent...")
 		@server.closeConnections
 	end
-
-	attr_accessor :videodirs, :config_count, :prompting, :server, :screen
 end
 
 begin

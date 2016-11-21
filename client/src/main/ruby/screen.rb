@@ -6,5 +6,9 @@ class Screen
 		@main.prompt
 	end
 
+	def prompt
+		@main.prompt
+	end
+
 	attr_accessor :main
 end

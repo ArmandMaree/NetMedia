@@ -5,6 +5,7 @@ require "colorize"
 require "./src/main/ruby/screen"
 Dir["./src/main/ruby/media/*.rb"].each {|file| require file}
 Dir["./src/main/ruby/network/*.rb"].each {|file| require file}
+Dir["./src/main/ruby/media/*.rb"].each {|file| require file}
 
 class Main
 	def initialize
@@ -35,6 +36,10 @@ class Main
 
 					@mediadirs << command
 					@screen.print("Media directory: #{command}")
+				when "username"
+					@client.username = lineArray[1].chomp
+				when "password"
+					@client.password = lineArray[1].chomp
 				else
 					@screen.print("Unknown option \"#{key}\"")
 					@config_count -= 1
@@ -51,7 +56,10 @@ class Main
 		@mediadirs.each{|path|
 			Dir.foreach(path) do |item|
 			next if item == '.' or item == '..'
-				media << item
+				mediaitem = MediaItem.new
+				mediaitem.path = path
+				mediaitem.name = item
+				media << mediaitem
 			end
 		}
 	end

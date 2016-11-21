@@ -1,9 +1,13 @@
 require "socket"
 require "thread"
+require "colorize"
+require "zlib"
 
 Dir["../*.rb"].each {|file| require file}
 
 class Server
+	attr_accessor :port, :main, :screen, :stop
+
 	def initialize
 		@port = 5000
 		@server = nil
@@ -40,9 +44,7 @@ class Server
 							throw :stop
 						end
 
-						@screen.print("Client connected.")
 						@clients << client
-						sendToClient(client, "Connected to server successfully.")
 						sendToClient(client, "request:name")
 						name = client.gets.chomp
 						class << client
@@ -64,6 +66,8 @@ class Server
 						Thread.new do
 							listenForClient(client)
 						end
+						sendToClient(client, "Connected to server successfully.")
+						@screen.print("Client " + client.name + " connected.")
 					end
 				}
 			end
@@ -132,6 +136,54 @@ class Server
 		}
 	end
 
+	def getMedia(clientName, filename)
+		client = nil
+
+		@clients.each {|c|
+			if c.name == clientName
+				client = c
+				break
+			end
+		}
+
+		if client == nil
+			@screen.print("No client with the name \"#{clientName}\".".red)
+		else
+			while !client.communicate.try_lock
+			
+			end
+			sendToClient(client, "request:checkmedia:#{filename}")
+			response = client.gets.chomp
+
+			if response != "EXISTS"
+				@screen.print("Client says media item does not exist.".red)
+			else
+				sendToClient(client, "request:getmedia:#{filename}")
+				puts("Starting transfer now.")
+				bytesReceived = 0
+				file = File.open(@main.mediadir + filename.rpartition('/').last, "wb")
+
+				while status = client.gets.chomp
+					print "\r#{status}".green
+					STDOUT.flush
+					if  status =~ /Transfer complete(.*)/
+						screen.print("\r#{status}".green)
+						break
+					end
+					if status == nil || status == ""
+						sleep(1)
+					end
+				end
+			end
+
+			client.communicate.unlock
+		end
+	end
+
+	def decompress(input)
+		Zlib::Inflate.inflate(input)
+	end
+
 	def closeClient(client)
 		@screen.print("Closing #{client.name}...")
 		sendToClient(client, "command:close")
@@ -155,6 +207,4 @@ class Server
 		}
 		@screen.print("Closing server...")
 	end
-
-	attr_accessor :port, :main, :screen, :stop
 end
