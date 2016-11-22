@@ -77,21 +77,27 @@ class Main
 				@server.listMedia
 			when "getmedia"
 				print "Name of client: "
-				clientName = gets.chomp
-				# clientName = "armandmaree-desktop"
+				# clientName = gets.chomp
+				clientName = "armandmaree-desktop"
 				print "File name of media: "
-				filename = gets.chomp
+				# filename = gets.chomp
 				# filename = "/home/armandmaree/Videos/NetMedia/SampleVideo_1280x720_5mb.mp4"
-				# filename = "/home/armandmaree/Videos/NetMedia/The.Avengers.2012.720p.BluRay.x264.YIFY.mp4"
+				filename = "/home/armandmaree/Videos/NetMedia/The.Avengers.2012.720p.BluRay.x264.YIFY.mp4"
 				@server.getMedia(clientName, filename)
-			when "play"
+			when "playmedia"
 				print "File name of media: "
 				filename = "/home/netmedia/uploads/" + gets.chomp
 				# filename = "/home/netmedia/uploads/SampleVideo_1280x720_5mb.mp4"
 				# filename = "/home/netmedia/uploads/The.Avengers.2012.720p.BluRay.x264.YIFY.mp4"
-				@player.play(filename)
+				@player.playFullscreen(filename)
 			when "listlocal"
-
+				puts "Local media:"
+				Dir.foreach("/home/netmedia/uploads/") do |item|
+					next if item == '.' or item == '..'
+					puts "\t#{item}"
+				end
+			when "stopmedia"
+				@player.stop
 			else
 				screen.print "Unknown command \"#{command}\"."
 			end
@@ -118,6 +124,7 @@ begin
 	main.screen.print("")
 
 	main.getCommands
+	@player.stop
 rescue Interrupt => e
 	main.stop
 end
