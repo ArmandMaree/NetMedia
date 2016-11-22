@@ -20,6 +20,7 @@ class Main
 		@server = Server.new
 		@server.main = self
 		@server.screen = @screen
+		@player = Player.new
 	end
 
 	def welcome
@@ -76,12 +77,21 @@ class Main
 				@server.listMedia
 			when "getmedia"
 				print "Name of client: "
-				clientName = "armandmaree-desktop" #gets.chomp
+				clientName = gets.chomp
+				# clientName = "armandmaree-desktop"
 				print "File name of media: "
-				# filename = "/home/armandmaree/Videos/NetMedia/test" #gets.chomp
-				filename = "/home/armandmaree/Videos/NetMedia/SampleVideo_1280x720_5mb.mp4" #gets.chomp
-				# filename = "/home/armandmaree/Videos/NetMedia/The.Avengers.2012.720p.BluRay.x264.YIFY.mp4" #gets.chomp
+				filename = gets.chomp
+				# filename = "/home/armandmaree/Videos/NetMedia/SampleVideo_1280x720_5mb.mp4"
+				# filename = "/home/armandmaree/Videos/NetMedia/The.Avengers.2012.720p.BluRay.x264.YIFY.mp4"
 				@server.getMedia(clientName, filename)
+			when "play"
+				print "File name of media: "
+				filename = "/home/netmedia/uploads/" + gets.chomp
+				# filename = "/home/netmedia/uploads/SampleVideo_1280x720_5mb.mp4"
+				# filename = "/home/netmedia/uploads/The.Avengers.2012.720p.BluRay.x264.YIFY.mp4"
+				@player.play(filename)
+			when "listlocal"
+
 			else
 				screen.print "Unknown command \"#{command}\"."
 			end

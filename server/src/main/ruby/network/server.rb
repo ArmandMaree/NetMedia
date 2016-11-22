@@ -66,7 +66,7 @@ class Server
 						Thread.new do
 							listenForClient(client)
 						end
-						sendToClient(client, "Connected to server successfully.")
+						# sendToClient(client, "Connected to server successfully.")
 						@screen.print("Client " + client.name + " connected.")
 					end
 				}

@@ -21,12 +21,36 @@ class Client
 		@stopped = false
 		@username = nil
 		@password = nil
+		@terminate = false
 	end
 
 	def open
-		@screen.print("Connecting to #{@hostname}:#{@port}")
-		@socket = TCPSocket.open(@hostname, @port)
-		@stopped = false
+		connected = false
+		@stopped = true
+		numDots = 0
+
+		while !connected && !@terminate
+			begin
+				@socket = TCPSocket.open(@hostname, @port)
+				connected = true
+			rescue
+				dots = ""
+
+				for i in 0..(numDots - 1)
+					dots << "."
+				end
+
+				for i in numDots..3
+					dots << " "
+				end
+
+				numDots = (numDots + 1) % 4
+				print("\rConnection to server failed. Retrying#{dots}".red)
+				sleep(0.5)
+			else
+				@screen.print("Connected to #{@hostname}:#{@port}                            ".green)
+			end
+		end
 	end
 
 	def readLine
@@ -100,6 +124,7 @@ class Client
 							when "close"
 								write("OK")
 								@screen.print("Socket closing...")
+								@stopped = true
 								throw :stop
 							else
 								@screen.print("Unknown command \"#{line[8..(line.length - 1)]}\".")
@@ -111,7 +136,10 @@ class Client
 				}
 			end
 			
-			@stopped = true
+			if !@terminate
+				sleep(1)
+				open
+			end
 		end
 	end
 
@@ -132,9 +160,15 @@ class Client
 	end
 
 	def closeConnections
+		preStopped = @stopped
+		@terminate = true
 		@requests << "command:close"
 		while !@stopped
-			sleep(0.5)
+			sleep(0.2)
+		end
+
+		if !preStopped
+			sleep(1)
 		end
 	end
 end
