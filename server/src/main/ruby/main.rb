@@ -8,19 +8,26 @@ Dir["./src/main/ruby/video/*.rb"].each {|file| require file}
 Dir["./src/main/ruby/network/*.rb"].each {|file| require file}
 
 class Main
-	attr_accessor :mediadir, :config_count, :prompting, :server, :screen
+	attr_accessor :mediadir, :config_count, :prompting, :server, :screen, :controller
 
 	def initialize
-		@clients = []
 		@config_count = 0
 		@stop = false
 		@prompting = false
+
 		@screen = Screen.new
 		@screen.main = self
+
 		@server = Server.new
 		@server.main = self
 		@server.screen = @screen
+
 		@player = Player.new
+
+		@controller = ControllerService.new
+		@controller.main = self
+		@controller.screen = @screen
+		@controller.server = @server
 	end
 
 	def welcome
@@ -74,20 +81,35 @@ class Main
 			when "stop"
 				stop
 			when "listmedia"
-				@server.listMedia
+				media = @server.listMedia
+
+				media.each do |clientMedia|
+					@screen.print("Media for client #{clientMedia[0][0]}")
+					clientMedia.each_index do |mediaIndex|
+						@screen.print("\t#{clientMedia[mediaIndex][2]}")
+					end
+				end
+			when "listclients"
+				@screen.print("Clients connected to server:")
+				@server.clients.each do |client|
+					@screen.print("\t#{client.name}")
+				end
 			when "getmedia"
 				print "Name of client: "
 				# clientName = gets.chomp
 				clientName = "armandmaree-desktop"
 				print "File name of media: "
 				# filename = gets.chomp
-				# filename = "/home/armandmaree/Videos/NetMedia/SampleVideo_1280x720_5mb.mp4"
-				filename = "/home/armandmaree/Videos/NetMedia/The.Avengers.2012.720p.BluRay.x264.YIFY.mp4"
-				@server.getMedia(clientName, filename)
+				filename = "/home/armandmaree/Videos/NetMedia/SampleVideo_1280x720_5mb.mp4"
+				# filename = "/home/armandmaree/Videos/NetMedia/The.Avengers.2012.720p.BluRay.x264.YIFY.mp4"
+				@server.getMedia(clientName, filename) do |message|
+					print (message.green)
+				end
+				@screen.print("")
 			when "playmedia"
 				print "File name of media: "
-				filename = "/home/netmedia/uploads/" + gets.chomp
-				# filename = "/home/netmedia/uploads/SampleVideo_1280x720_5mb.mp4"
+				# filename = "/home/netmedia/uploads/" + gets.chomp
+				filename = "/home/netmedia/uploads/SampleVideo_1280x720_5mb.mp4"
 				# filename = "/home/netmedia/uploads/The.Avengers.2012.720p.BluRay.x264.YIFY.mp4"
 				@player.playFullscreen(filename)
 			when "listlocal"
@@ -99,7 +121,7 @@ class Main
 			when "stopmedia"
 				@player.stop
 			else
-				screen.print "Unknown command \"#{command}\"."
+				@screen.print "Unknown command \"#{command}\"."
 			end
 		end
 	end
@@ -122,6 +144,10 @@ begin
 	server.open
 	server.waitForClients
 	main.screen.print("")
+
+	controller = main.controller
+	controller.open
+	controller.waitForController	
 
 	main.getCommands
 	@player.stop

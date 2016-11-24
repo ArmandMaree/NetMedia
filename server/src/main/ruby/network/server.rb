@@ -6,7 +6,7 @@ require "zlib"
 Dir["../*.rb"].each {|file| require file}
 
 class Server
-	attr_accessor :port, :main, :screen, :stop
+	attr_accessor :port, :main, :screen, :stop, :clients
 
 	def initialize
 		@port = 5000
@@ -120,20 +120,25 @@ class Server
 		numMedia = client.gets.chomp.to_i
 		sendToClient(client, "request:list-media")
 		media = []
-		@screen.print("Media at client \"#{client.name}\": ")
 
 		for i in 0..(numMedia - 1) do
-			media << client.gets.chomp
-			@screen.print("\t#{media.last}")
+			item = []
+			item << client.name
+			item << "UNKNOWN" # title is currently always UNKNOWN
+			item << client.gets.chomp
+			media << item
 		end
 
 		client.communicate.unlock
+		media
 	end
 
 	def listMedia
+		media = []
 		@clients.each {|client|
-			listMediaForClient(client)
+			media << listMediaForClient(client)
 		}
+		media
 	end
 
 	def getMedia(clientName, filename)
@@ -147,7 +152,7 @@ class Server
 		}
 
 		if client == nil
-			@screen.print("No client with the name \"#{clientName}\".".red)
+			yield ("No client with the name \"#{clientName}\".".red)
 		else
 			while !client.communicate.try_lock
 			
@@ -156,18 +161,18 @@ class Server
 			response = client.gets.chomp
 
 			if response != "EXISTS"
-				@screen.print("Client says media item does not exist.".red)
+				yield ("Client says media item does not exist.".red)
 			else
 				sendToClient(client, "request:getmedia:#{filename}")
-				puts("Starting transfer now.")
+				yield ("Starting transfer now.\n")
 				bytesReceived = 0
 				file = File.open(@main.mediadir + filename.rpartition('/').last, "wb")
 
 				while status = client.gets.chomp
-					print "\r#{status}".green
+					yield "\r#{status}"
 					STDOUT.flush
 					if  status =~ /Transfer complete(.*)/
-						screen.print("\r#{status}".green)
+						yield ("\r#{status}")
 						break
 					end
 					if status == nil || status == ""

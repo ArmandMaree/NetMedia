@@ -29,6 +29,7 @@ class Player
 		vlcCommand = "vlc --fullscreen --quiet --play-and-exit #{filename}"
 		Thread.new do
 			IO.popen("#{vlcCommand} >/dev/null 2>&1") {}
+			@vlcPid = -1
 		end
 		@vlcPid = getPid(vlcCommand)
 	end

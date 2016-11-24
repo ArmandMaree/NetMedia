@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">NetMediaController</string>
+    <string name="list_media_activity_title">Media Available On NetMedia</string>
+    <string name="main_activity_title">NetMedia Controller</string>
+    <string name="media_details_activity_title">Media Details</string>
+    <string name="list_devices_activity_title">Devices Connected To NetMedia</string>
+    <string name="list_server_media_activity_title">Media On Server</string>
+    <string name="play_media_activity_title">Media Details</string>
+
+</resources>
