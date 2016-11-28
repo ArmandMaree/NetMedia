@@ -83,6 +83,7 @@ int main(int argc, char const *argv[])
 		char buffer[1024];
 		strcpy(buffer, "cd ");
 		strcat(buffer, targetdir);
+		char* runCommand "ruby 'src/main/ruby/main.rb'";
 		strcat(buffer, "; make run > 'netmedia-output.txt';");
 		fprintf(logfile, "INFO: Executing NetMedia with: %s\n", buffer);
 		fflush(logfile);

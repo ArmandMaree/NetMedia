@@ -11,6 +11,7 @@ class Main
 	attr_accessor :mediadir, :config_count, :prompting, :server, :screen, :controller
 
 	def initialize
+		@port = 5002
 		@config_count = 0
 		@stop = false
 		@prompting = false
@@ -76,7 +77,14 @@ class Main
 		while !@stop
 			@prompting = true
 			prompt
-			command = gets.chomp.downcase
+
+			if STDIN.tty?
+				command = gets.chomp.downcase
+			else
+				@server = TCPServer.open(@port)
+				client = @server.accept
+				command = client.gets.chomp
+			end
 
 			case command
 			when "stop"
@@ -97,10 +105,18 @@ class Main
 				end
 			when "getmedia"
 				print "Name of client: "
-				clientName = gets.chomp
+				if STDIN.tty?
+					clientName = gets.chomp
+				else
+					clientName = client.gets.chomp
+				end
 				# clientName = "armandmaree-desktop"
 				print "File name of media: "
-				filename = gets.chomp
+				if STDIN.tty?
+					filename = gets.chomp
+				else
+					filename = client.gets.chomp
+				end
 				# filename = "/home/armandmaree/Videos/NetMedia/SampleVideo_1280x720_5mb.mp4"
 				@server.getMedia(clientName, filename) do |message|
 					print (message.green)
@@ -108,7 +124,11 @@ class Main
 				@screen.print("")
 			when "playmedia"
 				print "File name of media: "
-				filename = "/home/netmedia/uploads/" + gets.chomp
+				if STDIN.tty?
+					filename = "/home/netmedia/uploads/" + gets.chomp
+				else
+					filename = "/home/netmedia/uploads/" + client.gets.chomp
+				end
 				# filename = "/home/netmedia/uploads/SampleVideo_1280x720_5mb.mp4"
 				@player.playFullscreen(filename)
 			when "listlocal"
@@ -121,6 +141,10 @@ class Main
 				@player.stop
 			else
 				@screen.print "Unknown command \"#{command}\"."
+			end
+
+			if !STDIN.tty?
+				client.close
 			end
 		end
 	end
