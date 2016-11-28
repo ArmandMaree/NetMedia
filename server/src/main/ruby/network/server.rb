@@ -166,7 +166,6 @@ class Server
 				sendToClient(client, "request:getmedia:#{filename}")
 				yield ("Starting transfer now.\n")
 				bytesReceived = 0
-				file = File.open(@main.mediadir + filename.rpartition('/').last, "wb")
 
 				while status = client.gets.chomp
 					yield "\r#{status}"

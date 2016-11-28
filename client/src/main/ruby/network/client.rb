@@ -11,7 +11,7 @@ class Client
 	attr_accessor :hostname, :port, :name, :main, :screen, :username, :password, :terminate
 
 	def initialize
-		@hostname = 'localhost'
+		@hostname = '10.0.0.4'
 		@port = 5000
 		@socket = nil
 		@name = Socket.gethostname
