@@ -9,7 +9,7 @@
 #include <string.h>
 
 void usage() {
-	printf("Usage: netmedia-daemon <path-to-sshipassist>\n");
+	printf("Usage: netmedia-daemon <path-to-netmedia-server>\n");
 }
 
 int main(int argc, char const *argv[])

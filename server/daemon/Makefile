@@ -3,7 +3,7 @@ make: daemon.c
 	gcc -o netmedia-daemon daemon.c
 
 run:
-	./netmedia-daemon "/home/armandmaree/Software/NetMedia/server/"
+	./netmedia-daemon "/home/netmedia/CodeHaven/NetMedia/server/"
 
 clean:
 	rm netmedia-daemon
