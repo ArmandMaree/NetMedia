@@ -1,12 +1,12 @@
 
 make: daemon.c
-	gcc -o sshipassist-daemon daemon.c
+	gcc -o netmedia-daemon daemon.c
 
 run:
-	./sshipassist-daemon "/home/armandmaree/Software/SSHIPAssist"
+	./netmedia-daemon "/home/armandmaree/Software/NetMedia/server/"
 
 clean:
-	rm sshipassist-daemon
+	rm netmedia-daemon
 
 all:
 	make
