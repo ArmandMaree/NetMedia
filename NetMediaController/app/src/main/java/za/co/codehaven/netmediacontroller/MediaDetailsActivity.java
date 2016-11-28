@@ -29,8 +29,8 @@ public class MediaDetailsActivity extends AppCompatActivity {
     private ProgressBar pbProgress;
 
     private Socket socket;
-    PrintWriter out;
-    BufferedReader in;
+    private PrintWriter out;
+    private BufferedReader in;
     private MediaItem item;
 
     @Override

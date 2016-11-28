@@ -109,8 +109,14 @@ begin
 	
 	main.screen.print("")
 	client = main.client
-	client.open
-	client.readLine
+
+	Thread.new do
+		while !client.terminate
+			client.open
+			client.readLine
+			sleep(1) if !client.terminate
+		end
+	end
 
 	main.getCommands
 rescue Interrupt => e

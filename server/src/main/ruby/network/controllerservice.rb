@@ -4,14 +4,15 @@ require "thread"
 Dir["../*.rb"].each {|file| require file}
 
 class ControllerService
-	attr_accessor :port, :main, :screen, :controller, :server
+	attr_accessor :port, :main, :screen, :controller, :server, :player
 
 	def initialize
 		@port = 5001
 		@server = nil
 		@controller = nil
 		@server = nil
-		@controllerServer
+		@controllerServer = nil
+		@player = nil
 	end
 
 	def open
@@ -49,6 +50,13 @@ class ControllerService
 								@server.clients.each do |client|
 									sendToController("#{client.name}")
 								end
+								sendToController("DONE")
+							elsif line == "listlocal"
+								Dir.foreach("/home/netmedia/uploads/") do |item|
+									next if item == '.' or item == '..'
+									sendToController("server@" + "#{item}")
+								end
+								sendToController("DONE")
 							elsif line == "getMedia"
 								clientName = @controller.gets.chomp
 								filename = @controller.gets.chomp
@@ -59,11 +67,6 @@ class ControllerService
 							elsif line == "playmedia"
 								filename = "/home/netmedia/uploads/" + @controller.gets.chomp
 								@player.playFullscreen(filename)
-							elsif line == "listlocal"
-								Dir.foreach("/home/netmedia/uploads/") do |item|
-									next if item == '.' or item == '..'
-									sendToController("#{item}")
-								end
 							elsif line == "stopmedia"
 								@player.stop
 							else

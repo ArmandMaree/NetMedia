@@ -81,9 +81,10 @@ public class ListMediaActivity extends AppCompatActivity {
             while ((reply = in.readLine()) != null) {
                 if (!reply.equals("DONE")) {
                     MediaItem mi = new MediaItem();
-                    mi.setFullPath(reply.substring(reply.indexOf('@') + 1));
+                    String path = reply.substring(reply.indexOf('@') + 1);
+                    mi.setFullPath(path);
                     mi.setDeviceName(reply.substring(0, reply.indexOf('@')));
-                    mi.setFileName(reply.substring(reply.lastIndexOf('/') + 1));
+                    mi.setFileName(path.substring(path.lastIndexOf('/') + 1));
                     mediaItems.add(mi);
                 }
                 else
@@ -93,7 +94,7 @@ public class ListMediaActivity extends AppCompatActivity {
             mediaItemsAdapter.sort(new Comparator<MediaItem>() {
                 @Override
                 public int compare(MediaItem lhs, MediaItem rhs) {
-                    return lhs.compareTo(rhs);   //or whatever your sorting algorithm
+                    return lhs.compareTo(rhs);
                 }
             });
 

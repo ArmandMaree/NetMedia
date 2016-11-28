@@ -91,7 +91,8 @@
             android:theme="@style/AppTheme"
             android:background="@color/colorPrimary"
             android:textStyle="normal|bold"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:onClick="onBtnPlayClick"/>
 
         <Space
             android:layout_width="match_parent"
@@ -107,7 +108,8 @@
             android:theme="@style/AppTheme"
             android:background="@color/colorPrimary"
             android:textStyle="normal|bold"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:onClick="onBtnStopClick"/>
 
     </LinearLayout>
 </RelativeLayout>

@@ -10,18 +10,29 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class ListServerMediaActivity extends AppCompatActivity {
     ArrayList<MediaItem> mediaItems = new ArrayList<>();
     ArrayAdapter<MediaItem> mediaItemsAdapter;
     ListView lstvwMediaItems;
     EditText edtMediaSearch;
+    private Socket socket;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_server_media);
+
+        socket = MainActivity.socket;
 
         lstvwMediaItems = (ListView) findViewById(R.id.lstvwMediaItems);
         edtMediaSearch = (EditText) findViewById(R.id.edtMediaSearch);
@@ -29,6 +40,7 @@ public class ListServerMediaActivity extends AppCompatActivity {
         mediaItemsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mediaItems);
         lstvwMediaItems.setAdapter(mediaItemsAdapter);
         addItems();
+
 
         edtMediaSearch.addTextChangedListener(new TextWatcher() {
             @Override
@@ -59,19 +71,35 @@ public class ListServerMediaActivity extends AppCompatActivity {
     }
 
     public void addItems() {
-        mediaItems.add(new MediaItem("Avengers"));
-        mediaItems.add(new MediaItem("Avengers: Age of Ultron"));
-        mediaItems.add(new MediaItem("Casino Royal"));
-        mediaItems.add(new MediaItem("Evil Dead"));
-        mediaItems.add(new MediaItem("Pineapple Express"));
-        mediaItems.add(new MediaItem("Tenacious D"));
+        try {
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out.println("listlocal");
+            String reply;
+            while ((reply = in.readLine()) != null) {
+                if (!reply.equals("DONE")) {
+                    MediaItem mi = new MediaItem();
+                    String path = reply.substring(reply.indexOf('@') + 1);
+                    mi.setFullPath(path);
+                    mi.setDeviceName(reply.substring(0, reply.indexOf('@')));
+                    mi.setFileName(path.substring(path.lastIndexOf('/') + 1));
+                    mediaItems.add(mi);
+                }
+                else
+                    break;
+            }
 
-        for (MediaItem mi : mediaItems) {
-            mi.setDeviceName("armandmaree-desktop");
-            mi.setFullPath("/home/armandmaree/Videos/NetMedia/");
+            mediaItemsAdapter.sort(new Comparator<MediaItem>() {
+                @Override
+                public int compare(MediaItem lhs, MediaItem rhs) {
+                    return lhs.compareTo(rhs);
+                }
+            });
+
+            mediaItemsAdapter.notifyDataSetChanged();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-
-        mediaItemsAdapter.notifyDataSetChanged();
     }
-
 }
