@@ -68,6 +68,7 @@ class ControllerService
 								filename = "/home/netmedia/uploads/" + @controller.gets.chomp
 								@player.playFullscreen(filename)
 							elsif line == "stopmedia"
+								puts "CALLED STOP"
 								@player.stop
 							else
 								sendToController("UNKNOWN COMMAND")
